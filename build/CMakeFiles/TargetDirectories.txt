@@ -1,0 +1,3 @@
+C:/projects/hse/cpp/2024-2025/courseProject1/build/CMakeFiles/Seki.dir
+C:/projects/hse/cpp/2024-2025/courseProject1/build/CMakeFiles/ALL_BUILD.dir
+C:/projects/hse/cpp/2024-2025/courseProject1/build/CMakeFiles/ZERO_CHECK.dir

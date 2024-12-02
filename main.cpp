@@ -1,6 +1,5 @@
-#include "Card.h"
+#include "Board.h"
 #include "Player.h"
-#include "Deck.h"
 #include <iostream>
 #include <vector>
 
@@ -8,32 +7,34 @@
 // using namespace std;
 
 int main() {
-    std::vector<Player> players {Player("p1", 10, 5), Player("p2", 20, 5)};
-    
-    Deck deck;
-    deck.printDeck();
-    std::cout << deck.getSize();
+    std::vector<Player> players {Player("p1"), Player("p2")};
+    Board b(3, 3);
+    b.fillBoard();
 
-    Card given {deck.giveCard()};
-    std::cout << given.toString();
     
-    size_t turn = 0;
-    size_t max_cards_in_hand = 3;
-    // for (int i = 0; i < players.size() * max_cards_in_hand; i++) {
-    while (players[turn].get_hand_size() < max_cards_in_hand) {
-        players[turn].addCard(deck.giveCard());
-        turn = (turn + 1) % players.size();
-    }
-
-    turn = 0;
-    while (deck.getSize() > 0 && players.size() > 1) {
+    int turn = 0;
+    int winner = b.hasWinner();
+    
+    while (winner == 0 && players.size() > 1) {
         // turns
+        b.printBoard();
 
+        std::cout << "Ходит " << turn + 1 << "й игрок.\n";
+        std::cout << "winner = " << winner << "\n";
+        players[turn].makeMove(b);
+
+        winner = b.hasWinner();
         turn = (turn + 1) % players.size();
     }
-    if (!players.empty()) {
-        std::cout << players[0]._name << " - выиграл!";
+    
+    if (winner == 3) {
+        std::cout << "Ничья!";
+    } else if (!players.empty()) {
+        std::cout << players[winner - 1]._name << " - выиграл!";
     }
+    
+
+    
 
 //   int dealer_rank;
 //   int player_rank;

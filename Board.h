@@ -5,6 +5,7 @@
 #include <vector>
 #include <random>
 #include <string>
+#include <algorithm>
 
 class Board {
 public:
@@ -29,7 +30,7 @@ public:
 
   void fillBoard() {
     std::mt19937 gen(std::random_device{}());
-    std::uniform_int_distribution<int> rint(0, 10);
+    std::uniform_int_distribution<int> rint(1, 6);
     for (size_t i = 0; i < _height; i++) {
       for (size_t j = 0; j < _width; j++) {
         _board[i][j] = rint(gen);
@@ -44,8 +45,8 @@ public:
     for (size_t i = 0; i < _height; i++) {
       if (rowWin) break;
       rowWin = true;
-      for (size_t j = 1; j < _width; j++) {
-        if (_board[i][j] != _board[i][j - 1]) {
+      for (size_t j = 0; j < _width; j++) {
+        if (_board[i][j] != 0) {
           rowWin = false;
         }
       }
@@ -53,8 +54,8 @@ public:
     for (size_t j = 0; j < _width; j++) {
       if (colWin) break;
       colWin = true;
-      for (size_t i = 1; i < _height; i++) {
-        if (_board[i][j] != _board[i - 1][j]) {
+      for (size_t i = 0; i < _height; i++) {
+        if (_board[i][j] != 0) {
           colWin = false;
         }
       }
@@ -84,6 +85,48 @@ public:
 
   size_t getHeight() const {
     return _height;
+  }
+
+  int getRowSum(int row = 0) const {
+    if (row < 0 || row >= _height) return 0;
+    int sum = 0;
+    for (int j = 0; j < _width; j++) {
+      sum += _board[row][j];
+    }
+    return sum;
+  }
+
+  int getColSum(int col = 0) const {
+    if (col < 0 || col >= _width) return 0;
+    int sum = 0;
+    for (int i = 0; i < _height; i++) {
+      sum += _board[i][col];
+    }
+    return sum;
+  }
+
+  std::vector<std::pair<size_t, int>> getRowsIndSums() const {
+    std::vector<std::pair<size_t, int>> res (_height, {0, 0});
+
+    for (int i = 0; i < _height; i++) {
+      res[i] = {i, getRowSum(i)};
+    }
+    std::sort(std::begin(res), std::end(res), [](auto &left, auto &right) {
+      return left.second > right.second;
+    });
+    return res;
+  }
+
+  std::vector<std::pair<size_t, int>> getColsIndSums() const {
+    std::vector<std::pair<size_t, int>> res (_width, {0, 0});
+
+    for (int j = 0; j < _width; j++) {
+      res[j] = {j, getColSum(j)};
+    }
+    std::sort(std::begin(res), std::end(res), [](auto &left, auto &right) {
+      return left.second > right.second;
+    });
+    return res;
   }
 
   void printBoard() const {

@@ -7,13 +7,15 @@
 class Player {
 public:
   std::string _name = "";
+  bool _isPlayer = true;
 
 public:
   Player() {}
 
   Player(std::string name) : _name(name) {}
 
-  void makeMove(Board& board) {
+  virtual void makeMove(Board& board) {
+    std::cout << "player move\n";
     std::string input = "";
     int r = 0;
     int c = 0;

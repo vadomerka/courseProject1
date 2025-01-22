@@ -19,7 +19,7 @@ public:
     _winCond = winCond;
   }
 
-  void makeMove(Board& board) override {
+  std::pair<int, int> makeMove(Board& board) override {
     std::string input = "";
     int r = findBestRow(board);
     int c = findBestCol(board);
@@ -42,8 +42,8 @@ public:
         r = indSum[k].first;
       }
     }
-    std::cout << "Бот уменьшает ячейку (" << r << ", " << c << ")!\n";
     board.decrease(r, c);
+    return {r, c};
   }
 
   int findWorstRow(const Board& board) {

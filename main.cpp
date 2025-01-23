@@ -89,8 +89,8 @@ struct DetTurnQueue : public ITurnQueue {
     int oldTurn = turn;
     std::vector<int> ret;
     for (int i = 0; i < n; i++) {
-      nextTurn();
       ret.push_back(getCurrTurn());
+      nextTurn();
     }
     isInPeriod = oldFlag;
     turn = oldTurn;
@@ -116,12 +116,14 @@ int main() {
   setlocale(LC_ALL, "Russian");
   std::vector<Player*> players{new Bot("b1", "row"), new Bot("b2", "col")};
   Board b(3, 3);
-  b.fillBoard();
-
+  // b.fillBoard();
+  b.fillBoard({{1, 1, 4},
+               {2, 2, 3},
+               {6, 1, 5}});
   int turn = 0;
-  // std::vector<int> turns {makeTurnList({0, 1}, {0, 0, 1, 1})};
-  // DetTurnQueue tq {{0, 1}, {0, 0, 1, 1}};
-  RandTurnQueue tq {};
+  
+  DetTurnQueue tq {{0, 1}, {0, 0, 1, 1}};
+  // RandTurnQueue tq {};
 
   int winner = b.hasWinner();
   std::vector<int> tqv;
@@ -131,14 +133,14 @@ int main() {
     b.printBoard();
     turn = tq.getCurrTurn();
     std::wcout << L"Ходит " << turn + 1 << L"й игрок.\n";
-    tqv = tq.getNextTurns(10);
+    tqv = tq.getNextTurns(5);
     for (int i = 0; i < tqv.size(); i++) {
       std::wcout << tqv[i] << " ";
     }
     std::cout << "\n";
 
     // std::cout << "winner = " << winner << "\n";
-    std::pair<int, int> change = players[turn]->makeMove(b);
+    std::pair<int, int> change = players[turn]->makeMove(b, tqv);
     std::wcout << L"Бот уменьшает ячейку (" << change.first << L", " << change.second << L")!\n";
 
     winner = b.hasWinner();
@@ -156,5 +158,16 @@ int main() {
   for (size_t i = 0; i < players.size(); i++) {
     delete players[i];
   }
+
+/*
+3   6   4
+6   5   5
+5   2   3
+
+1   1   4
+2   2   3   
+6   1   5
+*/
+
   return 0;
 }

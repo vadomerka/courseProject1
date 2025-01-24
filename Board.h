@@ -38,6 +38,14 @@ public:
     }
   }
 
+  void fillBoard(const std::vector<std::vector<int>>& matrix) {
+    for (size_t i = 0; i < _height; i++) {
+      for (size_t j = 0; j < _width; j++) {
+        _board[i][j] = matrix[i][j];
+      }
+    }
+  }
+
   int hasWinner() const {
     bool colWin = false;
     bool rowWin = false;
@@ -69,6 +77,12 @@ public:
   void decrease(int r, int c) {
     if (r >= 0 && r < _height && c >= 0 && c < _width) {
       _board[r][c]--;
+    }
+  }
+
+  void increase(int r, int c) {
+    if (r >= 0 && r < _height && c >= 0 && c < _width) {
+      _board[r][c]++;
     }
   }
 

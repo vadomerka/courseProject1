@@ -8,6 +8,7 @@
 #include <vector>
 
 const double WIN_EVAL = 0.99;
+const int megaint = 1000000;
 
 class Bot : public Player {
 public:
@@ -34,7 +35,7 @@ public:
     return bestMove;
   }
 
-private:
+public:
   struct Depth {
     int orig;
     int curr;
@@ -75,12 +76,17 @@ private:
 
         board.decrease(x, y);
         double eval = minimax(board, depth.next()).second;
+        // board.printBoard();
+        // std::cout << eval << "\n";
         board.increase(x, y);
         // ((player == PLAYER_1 && eval > bestValue) || (player == PLAYER_2 && eval < bestValue))
         if ((player == PLAYER_1 && eval > bestValue) ||
             (player == PLAYER_2 && eval < bestValue)) {
           bestValue = eval;
           bestMove = {x, y};
+          // if (std::abs(bestValue) == std::numeric_limits<double>::infinity()) {
+          //   return {bestMove, bestValue};
+          // }
         }
       }
     }
@@ -105,9 +111,10 @@ private:
              .second;
     int koef = (player == PLAYER_1) ? 1 : -1;
     // int koef = 1;
-    int eur = koef * std::abs(minRow - minCol) / (minRow + minCol + 1e-6);
+    double eur = koef * std::abs(minRow - minCol) / (minRow + minCol + 1e-6);
     if (minRow == 0 || minCol == 0) {
       eur = koef * std::numeric_limits<double>::infinity();
+      // eur = koef * (megaint + (minRow + minCol));
     }
     return eur;
   }

@@ -112,26 +112,14 @@ struct DetTurnQueue : public ITurnQueue {
 };
 
 
-int main() {
-  setlocale(LC_ALL, "Russian");
-  std::vector<Player*> players{new Bot("b1", "row"), new Bot("b2", "col")};
-  Board b(3, 3);
-  // b.fillBoard();
-  b.fillBoard({{1, 1, 4},
-               {2, 2, 3},
-               {6, 1, 5}});
-  int turn = 0;
-  
-  DetTurnQueue tq {{0, 1}, {0, 0, 1, 1}};
-  // RandTurnQueue tq {};
-
+void runGame(Board& b, std::vector<Player*>& players, DetTurnQueue& tq) {
   int winner = b.hasWinner();
   std::vector<int> tqv;
 
   while (winner == 0 && players.size() > 1) {
     // turns
     b.printBoard();
-    turn = tq.getCurrTurn();
+    int turn = tq.getCurrTurn();
     std::wcout << L"Ходит " << turn + 1 << L"й игрок.\n";
     tqv = tq.getNextTurns(5);
     for (int i = 0; i < tqv.size(); i++) {
@@ -158,6 +146,34 @@ int main() {
   for (size_t i = 0; i < players.size(); i++) {
     delete players[i];
   }
+}
+
+void testGame() {
+  Board b(3, 3);
+  b.fillBoard({{1, 1, 4},
+               {2, 2, 3},
+               {6, 0, 5}});
+  b.printBoard();
+  Bot evaluer1 ("evaluer1", "row");
+  Bot evaluer2 ("evaluer2", "col");
+  std::wcout << L"Evaluation: " << evaluer1.evaluateBoard(b) << '\n';
+}
+
+int main() {
+  setlocale(LC_ALL, "Russian");
+  std::vector<Player*> players{new Bot("b1", "row"), new Bot("b2", "col")};
+  Board b(3, 3);
+  // b.fillBoard();
+  b.fillBoard({{1, 1, 4},
+               {2, 2, 3},
+               {6, 1, 5}});
+  int turn = 0;
+  
+  DetTurnQueue tq {{0, 1}, {0, 0, 1, 1}};
+  // RandTurnQueue tq {};
+  
+  // testGame();
+  runGame(b, players, tq);
 
 /*
 3   6   4

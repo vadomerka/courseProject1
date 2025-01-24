@@ -53,7 +53,7 @@ public:
     }
 
     player = turns[depth.orig - depth.curr];
-    std::pair<int, int> bestMove;
+    std::pair<int, int> bestMove {-1, -1};
     double bestValue = (player == PLAYER_1)
                            ? -std::numeric_limits<double>::infinity()
                            : std::numeric_limits<double>::infinity();
@@ -65,21 +65,22 @@ public:
       for (int i = 0;
            i < ((player == PLAYER_1) ? board.getWidth() : board.getHeight());
            ++i) {
-        int x = (player == turns[0]) ? p : i;
-        int y = (player == turns[0]) ? i : p;
-        if (player == PLAYER_2) {
-          std::swap(x, y);
-        }
+        int x = (player == PLAYER_1) ? p : i;
+        int y = (player == PLAYER_1) ? i : p;
+        // if (player == PLAYER_2) {
+        //   std::swap(x, y);
+        // }
 
         if (board.getValue(x, y) == 0)
           continue;
 
         board.decrease(x, y);
+        // std::cout << "x, y: " << x << " " << y << "\t";
         double eval = minimax(board, depth.next()).second;
         // board.printBoard();
-        // std::cout << eval << "\n";
         board.increase(x, y);
-        // ((player == PLAYER_1 && eval > bestValue) || (player == PLAYER_2 && eval < bestValue))
+        player = turns[depth.orig - depth.curr];
+        
         if ((player == PLAYER_1 && eval > bestValue) ||
             (player == PLAYER_2 && eval < bestValue)) {
           bestValue = eval;
@@ -90,7 +91,12 @@ public:
         }
       }
     }
-
+    if (bestMove.first == -1 && bestMove.second == -1) {
+      Depth new_depth(depth.orig - 1);  // Глубина минимакса
+      std::pair<std::pair<int, int>, double> res = minimax(board, new_depth);
+      bestMove = res.first;
+      bestValue = res.second;
+    }
     return {bestMove, bestValue};
   }
 
@@ -111,11 +117,22 @@ public:
              .second;
     int koef = (player == PLAYER_1) ? 1 : -1;
     // int koef = 1;
-    double eur = koef * std::abs(minRow - minCol) / (minRow + minCol + 1e-6);
-    if (minRow == 0 || minCol == 0) {
+    double eur = 0;
+    // if (minRow != minCol) {
+    eur = (minCol - minRow);
+    
+    // }
+    if (minRow == 0 && minCol == 0) {
       eur = koef * std::numeric_limits<double>::infinity();
+    } else if (minRow == 0) {
+      eur = std::numeric_limits<double>::infinity();
       // eur = koef * (megaint + (minRow + minCol));
+    } else if (minCol == 0) {
+      eur = -std::numeric_limits<double>::infinity();
     }
+    // std::cout << "minRow: " << minRow << '\t';
+    // std::cout << "minCol: " << minCol << '\t';
+    // std::cout << "eur: " << eur << '\n';
     return eur;
   }
 

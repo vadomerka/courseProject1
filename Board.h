@@ -77,6 +77,8 @@ public:
   void decrease(int r, int c) {
     if (r >= 0 && r < _height && c >= 0 && c < _width) {
       _board[r][c]--;
+    } else {
+      throw 1;
     }
   }
 

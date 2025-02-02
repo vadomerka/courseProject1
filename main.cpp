@@ -121,7 +121,7 @@ void runGame(Board& b, std::vector<Player*>& players, DetTurnQueue& tq) {
     b.printBoard();
     int turn = tq.getCurrTurn();
     std::wcout << L"Ходит " << turn + 1 << L"й игрок.\n";
-    tqv = tq.getNextTurns(2);
+    tqv = tq.getNextTurns(4);
     for (int i = 0; i < tqv.size(); i++) {
       std::wcout << tqv[i] << " ";
     }
@@ -163,10 +163,10 @@ int main() {
   setlocale(LC_ALL, "Russian");
   std::vector<Player*> players{new Bot("b1", "row"), new Bot("b2", "col")};
   Board b(3, 3);
-  b.fillBoard();
-  // b.fillBoard({{1, 1, 4},
-  //              {2, 2, 3},
-  //              {6, 1, 5}});
+  // b.fillBoard();
+  b.fillBoard({{1, 1, 4},
+               {2, 2, 3},
+               {6, 1, 5}});
   int turn = 0;
   
   DetTurnQueue tq {{0, 1}, {0, 0, 1, 1}};

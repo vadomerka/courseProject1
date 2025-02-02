@@ -118,10 +118,11 @@ void runGame(Board& b, std::vector<Player*>& players, DetTurnQueue& tq) {
 
   while (winner == 0 && players.size() > 1) {
     // turns
+    std::cout << '\n';
     b.printBoard();
     int turn = tq.getCurrTurn();
     std::cout << "Player " << turn + 1 << " turn.\n";
-    tqv = tq.getNextTurns(2);
+    tqv = tq.getNextTurns(4);
     for (int i = 0; i < tqv.size(); i++) {
       std::cout << tqv[i] << " ";
     }

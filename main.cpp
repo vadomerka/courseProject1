@@ -121,7 +121,7 @@ void runGame(Board& b, std::vector<Player*>& players, DetTurnQueue& tq) {
     b.printBoard();
     int turn = tq.getCurrTurn();
     std::wcout << L"Ходит " << turn + 1 << L"й игрок.\n";
-    tqv = tq.getNextTurns(1);
+    tqv = tq.getNextTurns(2);
     for (int i = 0; i < tqv.size(); i++) {
       std::wcout << tqv[i] << " ";
     }

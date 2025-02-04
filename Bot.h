@@ -18,19 +18,19 @@ public:
 
   bool _isPlayer = false;
   int player;
-  std::string _winCond = "";
 
   Bot() {}
 
-  Bot(std::string name, std::string winCond = "row")
-      : Player(name), _winCond(winCond) {}
+  Bot(std::string name, std::string winCond = "row") {
+    _name = name;
+    _winCond = winCond;
+  }
 
   std::pair<int, int> makeMove(Board &board, const std::vector<int>& fTurns) override {
     turns = fTurns;             // Доступные ходы
-    // PLAYER_1 = turns[0];        // Сам бот
-    // PLAYER_2 = 1 - PLAYER_1;    // Его противник
     Depth depth(turns.size());  // Глубина минимакса
     std::pair<int, int> bestMove = minimax(board, depth).first;
+    // std::pair<int, int> bestMove = hint(board);
     board.decrease(bestMove.first, bestMove.second);
     return bestMove;
   }
@@ -44,7 +44,7 @@ public:
 
     Depth(int oorig, int ccurr) : orig(oorig), curr(ccurr) {}
 
-    Depth next() const { return Depth{orig, curr - 1}; }  // TODO : wtf???
+    Depth next() const { return Depth{orig, curr - 1}; }  // TODO : ???
   };
 
   std::pair<std::pair<int, int>, double> minimax(Board &board, Depth depth) {
@@ -91,7 +91,10 @@ public:
         }
       }
     }
+    // Если все ходы бота ведут к поражению:
     if (bestMove.first == -1 && bestMove.second == -1) {
+      // Тогда уменьшаем количество просматриваемых ходов вперед.
+      // Чтобы бот не боялся смерти, он должен "поглупеть".
       Depth new_depth(depth.orig - 1);  // Глубина минимакса
       std::pair<std::pair<int, int>, double> res = minimax(board, new_depth);
       bestMove = res.first;
@@ -116,6 +119,7 @@ public:
                           [](auto &a, auto &b) { return a.second < b.second; }))
              .second;
     int koef = (player == PLAYER_1) ? 1 : -1;
+    // _winCond = (player == PLAYER_1) ? "row" : "col";
     // int koef = 1;
     double eur = 0;
     // if (minRow != minCol) {
@@ -134,26 +138,6 @@ public:
     // std::cout << "minCol: " << minCol << '\t';
     // std::cout << "eur: " << eur << '\n';
     return eur;
-  }
-
-  std::vector<int> calcRowPriority(const Board &board) {
-    auto rows = board.getRowsIndSums();
-    std::sort(rows.begin(), rows.end(),
-              [](auto &a, auto &b) { return a.second < b.second; });
-    std::vector<int> priorities;
-    for (auto &row : rows)
-      priorities.push_back(row.first);
-    return priorities;
-  }
-
-  std::vector<int> calcColPriority(const Board &board) {
-    auto cols = board.getColsIndSums();
-    std::sort(cols.begin(), cols.end(),
-              [](auto &a, auto &b) { return a.second < b.second; });
-    std::vector<int> priorities;
-    for (auto &col : cols)
-      priorities.push_back(col.first);
-    return priorities;
   }
 };
 

@@ -118,18 +118,26 @@ void runGame(Board& b, std::vector<Player*>& players, DetTurnQueue& tq) {
 
   while (winner == 0 && players.size() > 1) {
     // turns
+    std::cout << '\n';
     b.printBoard();
     int turn = tq.getCurrTurn();
-    std::wcout << L"Ходит " << turn + 1 << L"й игрок.\n";
+    std::cout << "Player " << turn + 1 << " turn.\n";
     tqv = tq.getNextTurns(4);
     for (int i = 0; i < tqv.size(); i++) {
-      std::wcout << tqv[i] << " ";
+      std::cout << tqv[i] << " ";
     }
     std::cout << "\n";
 
     // std::cout << "winner = " << winner << "\n";
+    std::pair<int, int> hint = players[turn]->hint(b);
+
     std::pair<int, int> change = players[turn]->makeMove(b, tqv);
-    std::wcout << L"Бот уменьшает ячейку (" << change.first << L", " << change.second << L")!\n";
+    std::cout << "Bot decreases cell (" << change.first << ", " << change.second << ")!\n";
+    
+    if (hint.first != change.first || hint.second != change.second) {
+      std::cout << "!!Not ";
+    }
+    std::cout << "Optimal: " << hint.first << ", " << hint.second << '\n';
 
     winner = b.hasWinner();
     // turn = (turn + 1) % players.size();
@@ -137,10 +145,10 @@ void runGame(Board& b, std::vector<Player*>& players, DetTurnQueue& tq) {
   }
   b.printBoard();
   if (winner == 3) {
-    std::wcout << L"Ничья!";
+    std::cout << "Draw!";
   } else if (!players.empty()) {
     std::cout << players[winner - 1]->_name;
-    std::wcout << L" - выиграл!";
+    std::cout << " - won!";
   }
 
   for (size_t i = 0; i < players.size(); i++) {
@@ -150,23 +158,28 @@ void runGame(Board& b, std::vector<Player*>& players, DetTurnQueue& tq) {
 
 void testGame() {
   Board b(3, 3);
-  b.fillBoard({{1, 1, 4},
-               {2, 2, 3},
-               {6, 0, 5}});
+  b.fillBoard({{0, 9, 1},
+               {0, 9, 1},
+               {1, 0, 2}});
   b.printBoard();
   Bot evaluer1 ("evaluer1", "row");
   Bot evaluer2 ("evaluer2", "col");
-  std::wcout << L"Evaluation: " << evaluer1.evaluateBoard(b) << '\n';
+  std::vector<int> mokTurns {1, 1, 1};
+  auto res = evaluer2.makeMove(b, mokTurns);
+  std::cout << "result: " << res.first << " " << res.second << '\n';
 }
 
 int main() {
-  setlocale(LC_ALL, "Russian");
+  // setlocale(LC_ALL, "Russian");
   std::vector<Player*> players{new Bot("b1", "row"), new Bot("b2", "col")};
   Board b(3, 3);
   // b.fillBoard();
   b.fillBoard({{1, 1, 4},
                {2, 2, 3},
                {6, 1, 5}});
+  // b.fillBoard({{3, 6, 4},
+  //              {6, 5, 5},
+  //              {5, 2, 3}});
   int turn = 0;
   
   DetTurnQueue tq {{0, 1}, {0, 0, 1, 1}};

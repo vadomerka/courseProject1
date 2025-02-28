@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <fstream>
 
 class Player {
 public:
@@ -17,17 +18,17 @@ public:
 
   Player(std::string name, std::string intension) : _name(name), _winCond(intension) {}
   
-  virtual std::pair<int, int> makeMove(Board& board, const std::vector<int>& fTurns) {
-    setlocale(LC_ALL, "Russian");
-    std::cout << "player move\n";
+  virtual std::pair<int, int> makeMove(Board& board, const std::vector<int>& fTurns, std::ostream& log=std::cout) {
+    // setlocale(LC_ALL, "Russian");
+    log << "player move\n";
     std::string input = "";
     int r = 0;
     int c = 0;
     do {
-      std::wcout << L"Введите координаты ячейки, для хода: ряд колонка\n";
-      std::wcout << L"Или напишите pass, чтобы пропустить ход.\n";
+      log << "Enter coordinates: row col\n";
+      log << "Or write pass, to skip turn.\n";
       std::cin >> input;
-      if (input == "pass") {return {-1, -1};}
+      if (input == "pass") { return {-1, -1}; }
       r = std::stoi(input);
       std::cin >> c;
     } while (!canMakeMove(r, c, board));
@@ -83,6 +84,9 @@ public:
     }
     return {r, c};
   }
+
+public:
+  virtual void logEvals() {}
 };
 
 #endif

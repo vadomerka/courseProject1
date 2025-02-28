@@ -145,17 +145,27 @@ public:
     return res;
   }
 
-  void printBoard() const {
+  std::string toString() const {
+    std::string res = "";
+    for (size_t i = 0; i < _height; i++) {
+      for (size_t j = 0; j < _width; j++) {
+        res += std::to_string(_board[i][j]) + " ";
+      }
+    }
+    return res;
+  }
+
+  void printBoard(std::ostream& log=std::cout) const {
     for (size_t i = 0; i < _height; i++) {
       for (size_t j = 0; j < _width; j++) {
         std::string output = std::to_string(_board[i][j]);
-        std::cout << output;
+        log << output;
         for (size_t _ = 0; _ < 4 - output.size(); _++) {
-          std::cout << " ";
+          log << " ";
         }
         
       }
-      std::cout << '\n';
+      log << '\n';
     }
   }
 };

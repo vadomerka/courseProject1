@@ -4,16 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <random>
-
-// using namespace std;
-
-// std::vector<int> makeTurnList(const std::vector<int>& begining, const std::vector<int>& period, int n = 10) {
-//   std::vector<int> turnList {begining};
-//   for (int i = 0; i < n; i++) {
-//     turnList.emplace_back(period);
-//   }
-//   return turnList;
-// }
+#include <fstream>
 
 struct ITurnQueue {
   virtual int getCurrTurn() = 0;
@@ -24,8 +15,6 @@ struct ITurnQueue {
 struct RandTurnQueue : public ITurnQueue {
   std::random_device rd;
   std::mt19937 rng{rd()};
-  // std::uniform_int_distribution<int> uid(1, 6);
-  // uid(rng);
   std::vector<int> nextTurnVector;
   int minQueueSize = 10;
 
@@ -112,44 +101,49 @@ struct DetTurnQueue : public ITurnQueue {
 };
 
 
-void runGame(Board& b, std::vector<Player*>& players, DetTurnQueue& tq) {
+void runGame(Board& b, std::vector<Player*>& players, DetTurnQueue& tq, 
+             int shownTurnsNum = 4, std::ostream& log = std::cout) {
   int winner = b.hasWinner();
   std::vector<int> tqv;
 
   while (winner == 0 && players.size() > 1) {
     // turns
-    std::cout << '\n';
-    b.printBoard();
+    log << '\n';
+    b.printBoard(log);
     int turn = tq.getCurrTurn();
-    std::cout << "Player " << turn + 1 << " turn.\n";
-    tqv = tq.getNextTurns(4);
+    log << "Player " << turn + 1 << " turn.\n";
+    tqv = tq.getNextTurns(shownTurnsNum);
     for (int i = 0; i < tqv.size(); i++) {
-      std::cout << tqv[i] << " ";
+      log << tqv[i] << " ";
     }
-    std::cout << "\n";
+    log << "\n";
 
-    // std::cout << "winner = " << winner << "\n";
     std::pair<int, int> hint = players[turn]->hint(b);
 
     std::pair<int, int> change = players[turn]->makeMove(b, tqv);
-    std::cout << "Bot decreases cell (" << change.first << ", " << change.second << ")!\n";
+
+    std::string type = ((players[turn]->_isPlayer) ? "Player" : "Bot");
+    log << type + " decreases cell (" << change.first << ", " << change.second << ")!\n";
     
     if (hint.first != change.first || hint.second != change.second) {
-      std::cout << "!!Not ";
+      log << "!!!";
     }
-    std::cout << "Optimal: " << hint.first << ", " << hint.second << '\n';
+    log << "Optimal: " << hint.first << ", " << hint.second << '\n';
 
     winner = b.hasWinner();
-    // turn = (turn + 1) % players.size();
     tq.nextTurn();
   }
-  b.printBoard();
+  b.printBoard(log);
   if (winner == 3) {
-    std::cout << "Draw!";
+    log << "Draw!";
   } else if (!players.empty()) {
-    std::cout << players[winner - 1]->_name;
-    std::cout << " - won!";
+    log << players[winner - 1]->_name;
+    log << " - won!";
   }
+
+  // DEBUG!!
+  players[0]->logEvals();
+  // DEBUG!!
 
   for (size_t i = 0; i < players.size(); i++) {
     delete players[i];
@@ -170,23 +164,36 @@ void testGame() {
 }
 
 int main() {
-  // setlocale(LC_ALL, "Russian");
   std::vector<Player*> players{new Bot("b1", "row"), new Bot("b2", "col")};
+  // Board b(4, 4);
   Board b(3, 3);
+  // Board b(2, 2);
   // b.fillBoard();
   b.fillBoard({{1, 1, 4},
                {2, 2, 3},
                {6, 1, 5}});
+  // b.fillBoard ({{0, 1, 2},
+  //               {2, 0, 3},
+  //               {6, 0, 5}});
   // b.fillBoard({{3, 6, 4},
   //              {6, 5, 5},
   //              {5, 2, 3}});
+  // b.fillBoard({{3, 6, 4, 10},
+  //              {6, 5, 5, 10},
+  //              {5, 2, 3, 10}, 
+  //              {5, 2, 3, 10}});
+  // b.fillBoard({{2, 0},
+  //              {0, 2}});
+  // b.fillBoard({{10, 10, 10}});
   int turn = 0;
   
   DetTurnQueue tq {{0, 1}, {0, 0, 1, 1}};
   // RandTurnQueue tq {};
   
   // testGame();
-  runGame(b, players, tq);
+  std::ofstream logFile;
+  logFile.open("game_log.txt");
+  runGame(b, players, tq, 4, logFile);
 
 /*
 3   6   4

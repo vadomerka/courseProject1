@@ -13,6 +13,7 @@ public:
   size_t _width = 0;
   std::vector<std::vector<int>> _board;
   long long max_num = 0;
+  int passStreak = 0;
 
 
 public:
@@ -81,7 +82,7 @@ public:
     if (r >= 0 && r < _height && c >= 0 && c < _width) {
       _board[r][c]--;
     } else {
-      throw 1;
+      // pass
     }
   }
 

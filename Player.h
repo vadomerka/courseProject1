@@ -18,7 +18,8 @@ public:
 
   Player(std::string name, std::string intension) : _name(name), _winCond(intension) {}
   
-  virtual std::pair<int, int> makeMove(Board& board, const std::vector<int>& fTurns, std::ostream& log=std::cout) {
+  virtual std::pair<int, int> makeMove(Board &board, const std::vector<int>& fTurns, int passStreak,
+    std::ostream& log=std::cout) {
     // setlocale(LC_ALL, "Russian");
     log << "player move\n";
     std::string input = "";

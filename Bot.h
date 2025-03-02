@@ -8,12 +8,19 @@
 #include <vector>
 #include <unordered_map>
 #include <map>
+#include <set>
 #include <fstream>
 
 
 const double WIN_EVAL = 0.99;
-const int megaint = 1000000;
+// const int megaint = 1000000;
+long long inf = 1000000;
 std::map<std::string, double> evalMap;
+std::set<std::string> sekiSet;
+std::map<std::string, std::vector<double>> sekiStates;
+int dc1 = 0;
+int dc2 = 0;
+
 
 
 class Bot : public Player {
@@ -36,6 +43,7 @@ public:
   std::pair<int, int> makeMove(Board &board, const std::vector<int>& fTurns, std::ostream& log=std::cout) override {
     turns = fTurns;             // Доступные ходы
     Depth depth(turns.size());  // Глубина минимакса
+    inf = board.max_num;
     std::pair<int, int> bestMove = minimax(board, depth).first;
     // std::pair<int, int> bestMove = hint(board);
     board.decrease(bestMove.first, bestMove.second);
@@ -63,10 +71,15 @@ public:
     double ret;
     if (findEval(board)) {
       ret = evalMap[board.toString()];
+      dc1++;
     } else {
       ret = minimax(board, depth.next()).second;
+      dc2++;
+      // Поиск вызывает ошибку terminated returned int
+      // if (sekiSet.find(board.toString()) == sekiSet.end()) {
       // вызывает баг при зависимости от хода игрока
-      // evalMap[board.toString()] = ret;
+      //   evalMap[board.toString()] = ret;
+      // }
     }
     return ret;
   }
@@ -80,8 +93,8 @@ public:
     std::pair<int, int> bestMove {-1, -1};
     double eval;
     double bestValue = (player == PLAYER_1)
-                           ? -std::numeric_limits<double>::infinity()
-                           : std::numeric_limits<double>::infinity();
+                           ? -inf
+                           : inf;
     // DEBUG
     bool bestValueUpd = false;
 
@@ -117,18 +130,24 @@ public:
           bestValue = eval;
           bestMove = {x, y};
           bestValueUpd = false;
-          // if (std::abs(bestValue) == std::numeric_limits<double>::infinity()) {
+          // if (std::abs(bestValue) == inf) {
           //   return {bestMove, bestValue};
           // }
         }
       }
     }
     // Если все ходы бота ведут к поражению:
-    if (bestMove.first == -1 && bestMove.second == -1) {
+    if (bestMove.first == -1 && bestMove.second == -1 &&
+        depth.orig == depth.curr) {
       // Тогда уменьшаем количество просматриваемых ходов вперед.
       // Чтобы бот не боялся смерти, он должен "поглупеть".
       Depth new_depth(depth.orig - 1);  // Глубина минимакса
       std::pair<std::pair<int, int>, double> res = minimax(board, new_depth);
+
+      // depth изменяется на глубине, но при этом очередь начинается с самого начала.
+      // попробовать: в отупение заходить только в начале очереди
+      //            : сдвигать очередь
+
       bestMove = res.first;
       bestValue = res.second;
       bestValueUpd = false;
@@ -160,15 +179,18 @@ public:
     
     // }
     if (minRow == 0 && minCol == 0) {
-      eur = koef * std::numeric_limits<double>::infinity();
+      eur = koef * inf;
+      sekiStates[board.toString()].push_back(eur);
+      sekiSet.insert(board.toString());
     } else if (minRow == 0) {
-      eur = std::numeric_limits<double>::infinity();
+      eur = inf;
       // eur = koef * (megaint + (minRow + minCol));
       evalMap[board.toString()] = eur;
     } else if (minCol == 0) {
-      eur = -std::numeric_limits<double>::infinity();
+      eur = -inf;
       evalMap[board.toString()] = eur;
     } else {
+      eur /= (minCol + minRow);
       evalMap[board.toString()] = eur;
     }
     // std::cout << "minRow: " << minRow << '\t';
@@ -181,15 +203,22 @@ public:
   void logEvals() {
     std::ofstream logFile;
     logFile.open("bot_eval_log.txt");
-    
-    // std::sort(evalMap.begin(), evalMap.end(), [](std::pair<const std::string, double>& left, 
-    //   std::pair<const std::string, double>& right) {
-    //   return left.first < right.first;
-    // });
+    logFile << dc1 << " " << dc2 << "\n";
     for (auto entry : evalMap) {
       logFile << entry.first << ": " << entry.second << '\n';
     }
     logFile.close();
+
+    std::ofstream logExtraFile;
+    logExtraFile.open("bot_extra_log.txt");
+    for (auto entry : sekiStates) {
+      logExtraFile << entry.first << ": ";
+      for (auto ev : entry.second) {
+        logExtraFile << ev << " ";
+      }
+      logExtraFile << '\n';
+    }
+    logExtraFile.close();
   }
 };
 

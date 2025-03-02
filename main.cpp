@@ -120,6 +120,10 @@ void runGame(Board& b, std::vector<Player*>& players, DetTurnQueue& tq,
 
     std::pair<int, int> hint = players[turn]->hint(b);
 
+    if (b.toString() == "0 1 2 2 1 3 6 1 5 ") {
+      std::cout << "";
+    }
+
     std::pair<int, int> change = players[turn]->makeMove(b, tqv);
 
     std::string type = ((players[turn]->_isPlayer) ? "Player" : "Bot");
@@ -152,15 +156,17 @@ void runGame(Board& b, std::vector<Player*>& players, DetTurnQueue& tq,
 
 void testGame() {
   Board b(3, 3);
-  b.fillBoard({{0, 9, 1},
-               {0, 9, 1},
-               {1, 0, 2}});
+  b.fillBoard ({{0, 1, 3},
+                {2, 1, 3},
+                {6, 1, 5}});
   b.printBoard();
   Bot evaluer1 ("evaluer1", "row");
   Bot evaluer2 ("evaluer2", "col");
-  std::vector<int> mokTurns {1, 1, 1};
-  auto res = evaluer2.makeMove(b, mokTurns);
-  std::cout << "result: " << res.first << " " << res.second << '\n';
+  std::vector<int> mokTurns {0, 1, 1};
+  auto res1 = evaluer1.makeMove(b, mokTurns);
+  auto res2 = evaluer2.makeMove(b, mokTurns);
+  std::cout << "result 1: " << res1.first << " " << res1.second << '\n';
+  std::cout << "result 2: " << res2.first << " " << res2.second << '\n';
 }
 
 int main() {
@@ -188,12 +194,13 @@ int main() {
   int turn = 0;
   
   DetTurnQueue tq {{0, 1}, {0, 0, 1, 1}};
+  // DetTurnQueue tq {{0, 0}, {1, 1, 0, 0}};
   // RandTurnQueue tq {};
   
   // testGame();
   std::ofstream logFile;
   logFile.open("game_log.txt");
-  runGame(b, players, tq, 4, logFile);
+  runGame(b, players, tq, 5, logFile);
 
 /*
 3   6   4

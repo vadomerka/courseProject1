@@ -12,6 +12,8 @@ public:
   size_t _height = 0;
   size_t _width = 0;
   std::vector<std::vector<int>> _board;
+  long long max_num = 0;
+
 
 public:
   Board() {}
@@ -42,6 +44,7 @@ public:
     for (size_t i = 0; i < _height; i++) {
       for (size_t j = 0; j < _width; j++) {
         _board[i][j] = matrix[i][j];
+        max_num += _board[i][j];
       }
     }
   }

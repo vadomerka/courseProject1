@@ -207,10 +207,10 @@ int main() {
   // RandTurnQueue tq {};
   
   // testGame();
-  std::ofstream logFile;
-  logFile.open("game_log.txt");
+  std::ofstream logFile ("game_log.txt");
   // бесконечная рекурсия?
   runGame(b, players, tq, 5, logFile);
+  logFile.close();
 
 /*
 3   6   4

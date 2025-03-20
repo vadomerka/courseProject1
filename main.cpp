@@ -173,6 +173,7 @@ int main() {
   std::ofstream logFile;
   logFile.open("game_log.txt");
   runGame(b, players, tq, 5, logFile);
+  logFile.close();
 
 /*
 3   6   4

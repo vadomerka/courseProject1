@@ -131,6 +131,9 @@ public:
         }
       }
     }
+    // if (depth.curr == 3) {
+    //   std::cout << "";
+    // }
     // Если все ходы бота ведут к поражению:
     if (bestMove.first == -1 && bestMove.second == -1 &&
     // доп условие, чтобы оценка глубокого хода была полной (если проиграл, то проиграл)
@@ -143,18 +146,19 @@ public:
 
       bestMove = res.first;
       bestValue = res.second;
-    }
-
-    // pass turn
-    if (passStreak < 2) {
-      eval = getBoardEval(board, depth, ++passStreak);
-      player = turns[depth.orig - depth.curr];
-      if ((player == PLAYER_1 && (eval > bestValue)) ||
-          (player == PLAYER_2 && (eval < bestValue))) {
-        bestValue = eval;
-        bestMove = {-2, -2};
+    } else {
+      // pass turn
+      if (passStreak < 2) {
+        eval = getBoardEval(board, depth, ++passStreak);
+        player = turns[depth.orig - depth.curr];
+        if ((player == PLAYER_1 && (eval > bestValue)) ||
+            (player == PLAYER_2 && (eval < bestValue))) {
+          bestValue = eval;
+          bestMove = {-2, -2};
+        }
       }
     }
+    
     return {bestMove, bestValue};
   }
 
@@ -191,7 +195,7 @@ public:
         eur /= (minCol + minRow);
       }
       // Запись только если не зависит от того, кто выиграл.
-      // evalMap[board.toString()] = eur;
+      evalMap[board.toString()] = eur;
     }
     return eur;
   }

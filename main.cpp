@@ -119,10 +119,6 @@ void runGame(Board& b, std::vector<Player*>& players, DetTurnQueue& tq,
 
     std::pair<int, int> hint = players[turn]->hint(b);
 
-    if (b.toString() == "0 1 2 2 1 3 6 1 5 ") {
-      std::cout << "";
-    }
-
     std::pair<int, int> change = players[turn]->makeMove(b, tqv, b.passStreak);
 
     std::string type = ((players[turn]->_isPlayer) ? "Player" : "Bot");
@@ -145,7 +141,6 @@ void runGame(Board& b, std::vector<Player*>& players, DetTurnQueue& tq,
   }
   b.printBoard(log);
   if (winner == 3) {
-    // log << "Draw!";
     winner = 1 - tq.getCurrTurn();
     log << players[winner]->_name;
     log << " - won!";
@@ -155,7 +150,7 @@ void runGame(Board& b, std::vector<Player*>& players, DetTurnQueue& tq,
   }
 
   // DEBUG!!
-  players[0]->logEvals();
+  // players[0]->logEvals();
   // DEBUG!!
 
   for (size_t i = 0; i < players.size(); i++) {
@@ -163,53 +158,20 @@ void runGame(Board& b, std::vector<Player*>& players, DetTurnQueue& tq,
   }
 }
 
-void testGame() {
-  Board b(3, 3);
-  b.fillBoard ({{0, 1, 3},
-                {2, 1, 3},
-                {6, 1, 5}});
-  b.printBoard();
-  Bot evaluer1 ("evaluer1", "row");
-  Bot evaluer2 ("evaluer2", "col");
-  std::vector<int> mokTurns {0, 1, 1};
-  auto res1 = evaluer1.makeMove(b, mokTurns, 0);
-  auto res2 = evaluer2.makeMove(b, mokTurns, 0);
-  std::cout << "result 1: " << res1.first << " " << res1.second << '\n';
-  std::cout << "result 2: " << res2.first << " " << res2.second << '\n';
-}
-
 int main() {
   std::vector<Player*> players{new Bot("b1", "row"), new Bot("b2", "col")};
-  // Board b(4, 4);
-  // Board b(3, 3);
-  Board b(2, 2);
-  // b.fillBoard();
+  Board b(3, 3);
+  b.fillBoard();
   // b.fillBoard({{1, 1, 4},
   //              {2, 2, 3},
   //              {6, 1, 5}});
-  // b.fillBoard ({{0, 1, 2},
-  //               {2, 0, 3},
-  //               {6, 0, 5}});
-  // b.fillBoard({{3, 6, 4},
-  //              {6, 5, 5},
-  //              {5, 2, 3}});
-  // b.fillBoard({{3, 6, 4, 10},
-  //              {6, 5, 5, 10},
-  //              {5, 2, 3, 10}, 
-  //              {5, 2, 3, 10}});
-  b.fillBoard({{2, 0},
-               {0, 2}});
-  // b.fillBoard({{10, 10, 10}});
   int turn = 0;
   
-  DetTurnQueue tq {{0, 1}, {0, 1}};
-  // DetTurnQueue tq {{0, 0}, {1, 1, 0, 0}};
+  DetTurnQueue tq {{0, 1}, {0, 0, 1, 1}};
   // RandTurnQueue tq {};
   
-  // testGame();
   std::ofstream logFile;
   logFile.open("game_log.txt");
-  // бесконечная рекурсия?
   runGame(b, players, tq, 5, logFile);
 
 /*

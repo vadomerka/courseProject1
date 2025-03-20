@@ -37,6 +37,7 @@ public:
     for (size_t i = 0; i < _height; i++) {
       for (size_t j = 0; j < _width; j++) {
         _board[i][j] = rint(gen);
+        max_num += _board[i][j]; // !!!
       }
     }
   }

@@ -9,14 +9,14 @@
 
 struct DetTurnQueue : public ITurnQueue
 {
-  std::vector<int> begining;
+  std::vector<int> beginning;
   std::vector<int> period;
   int turn;
   bool isInPeriod = false;
 
   DetTurnQueue(const std::vector<int> &bbegining, const std::vector<int> &pperiod)
   {
-    begining = bbegining;
+    beginning = bbegining;
     period = pperiod;
     turn = 0;
   }
@@ -29,7 +29,7 @@ struct DetTurnQueue : public ITurnQueue
     }
     else
     {
-      return begining[turn];
+      return beginning[turn];
     }
   }
 
@@ -57,7 +57,7 @@ struct DetTurnQueue : public ITurnQueue
     else
     {
       turn++;
-      if (turn >= begining.size())
+      if (turn >= beginning.size())
       {
         isInPeriod = true;
         turn = 0;

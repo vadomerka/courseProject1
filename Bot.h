@@ -10,17 +10,16 @@
 #include <map>
 #include <set>
 #include <fstream>
+#include <chrono>
 
 
-const double WIN_EVAL = 0.99;
-// const int megaint = 1000000;
+// Дефолтное значение бесконечности, впоследствии заменяется.
 long long inf = 1000000;
+// Попытка в оптимизацию.
+// Массив хранит уже оцененные состояния доски.
 std::map<std::string, double> evalMap;
-std::set<std::string> sekiSet;
+// Debug logs
 std::map<std::string, std::vector<double>> sekiStates;
-int dc1 = 0;
-int dc2 = 0;
-
 
 
 class Bot : public Player {
@@ -30,6 +29,12 @@ public:
   std::vector<int> turns;
 
   int player;
+
+  double max_td = 0;
+  double td_sum = 0;
+  int64_t td_count = 0;
+
+  std::vector<double> td_vector;
 
   Bot() {
     _isPlayer = false;
@@ -41,50 +46,61 @@ public:
   }
 
   std::pair<int, int> makeMove(Board &board, const std::vector<int>& fTurns, int passStreak,
-    std::ostream& log=std::cout) override {
+    int turnDepth = 0, std::ostream& log=std::cout) override {
     turns = fTurns;             // Доступные ходы
-    Depth depth(turns.size());  // Глубина минимакса
-    inf = board.max_num;
+    Depth depth(turnDepth == 0 ? turns.size() : turnDepth);  // Глубина минимакса
+    inf = board.max_num;        // Сумма доски (наибольшее значение оценки)
     std::pair<int, int> bestMove = minimax(board, depth, passStreak).first;
-    // std::pair<int, int> bestMove = hint(board);
 
     board.decrease(bestMove.first, bestMove.second);
     return bestMove;
   }
 
-  bool findEval(Board &board) {
-    return evalMap.find(board.toString()) != evalMap.end();
+  // Функция для замера скорости алгоритма.
+  std::pair<int, int> makeTimedMove(Board &board, const std::vector<int>& fTurns, int passStreak,
+    int turnDepth = 0, std::ostream& log=std::cout) {
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    std::pair<int, int> change = makeMove(board, fTurns, passStreak, turnDepth, log);
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    double td = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+    
+    max_td = std::max(max_td, td);
+    td_sum += td;
+    td_count++;
+    td_vector.push_back(td);
+    return change;
   }
 
-
-public:
+private:
+  // Структура для отслеживания глубины рекурсии и того, чей сейчас ход.
   struct Depth {
-    int start;
     int orig;
     int curr;
 
-    Depth(int sstart) : start(sstart), orig(sstart), curr(sstart) {}
+    Depth(int sstart) : orig(sstart), curr(sstart) {}
 
-    Depth(int sstart, int oorig, int ccurr) : 
-    start(sstart), orig(oorig), curr(ccurr) {}
+    Depth(int oorig, int ccurr) : orig(oorig), curr(ccurr) {}
 
-    Depth next() const { return Depth{start, orig, curr - 1}; }  // TODO : ???
+    Depth next() const { return Depth{orig, curr - 1}; }
 
-    Depth shallowing() const { return Depth{start, orig - 1, orig - 1}; }
+    Depth shallowing() const { return Depth{orig - 1, orig - 1}; }
   };
+
+  bool findEval(Board &board) {
+    return evalMap.find(board.toString()) != evalMap.end();
+  }
 
   double getBoardEval(Board &board, Depth depth, int passStreak) {
     double ret;
     if (findEval(board)) {
       ret = evalMap[board.toString()];
-      dc1++;
     } else {
       ret = minimax(board, depth.next(), passStreak).second;
-      dc2++;
     }
     return ret;
   }
 
+  // Магия.
   std::pair<std::pair<int, int>, double> minimax(Board &board, Depth depth, int passStreak = 0) {
     if (depth.curr <= 0 || board.hasWinner() != 0) {
       return {{-1, -1}, evaluateBoard(board)};
@@ -106,21 +122,14 @@ public:
            ++i) {
         int x = (player == PLAYER_1) ? p : i;
         int y = (player == PLAYER_1) ? i : p;
-        // if (player == PLAYER_2) {
-        //   std::swap(x, y);
-        // }
 
         if (board.getValue(x, y) == 0)
           continue;
 
         board.decrease(x, y);
-        // std::cout << "x, y: " << x << " " << y << "\t";
-        if (board.toString() == "0 0 2 2 1 3 6 1 5 ") {
-          std::cout << "";
-        }
+
         eval = getBoardEval(board, depth, 0);
-        // board.printBoard();
-        // std::cout << eval << "\n";
+
         board.increase(x, y);
         player = turns[depth.orig - depth.curr];
         
@@ -131,9 +140,7 @@ public:
         }
       }
     }
-    // if (depth.curr == 3) {
-    //   std::cout << "";
-    // }
+    
     // Если все ходы бота ведут к поражению:
     if (bestMove.first == -1 && bestMove.second == -1 &&
     // доп условие, чтобы оценка глубокого хода была полной (если проиграл, то проиграл)
@@ -201,25 +208,37 @@ public:
   }
 
 public:
+  // Debug logs
   void logEvals() {
-    std::ofstream logFile;
-    logFile.open("bot_eval_log.txt");
-    logFile << dc1 << " " << dc2 << "\n";
-    for (auto entry : evalMap) {
-      logFile << entry.first << ": " << entry.second << '\n';
-    }
-    logFile.close();
+    // std::ofstream logFile;
+    // logFile.open("bot_eval_log.txt");
+    // for (auto entry : evalMap) {
+    //   logFile << entry.first << ": " << entry.second << '\n';
+    // }
+    // logFile.close();
 
-    std::ofstream logExtraFile;
-    logExtraFile.open("bot_extra_log.txt");
-    for (auto entry : sekiStates) {
-      logExtraFile << entry.first << ": ";
-      for (auto ev : entry.second) {
-        logExtraFile << ev << " ";
-      }
-      logExtraFile << '\n';
+    // std::ofstream logExtraFile;
+    // logExtraFile.open("bot_extra_log.txt");
+    // for (auto entry : sekiStates) {
+    //   logExtraFile << entry.first << ": ";
+    //   for (auto ev : entry.second) {
+    //     logExtraFile << ev << " ";
+    //   }
+    //   logExtraFile << '\n';
+    // }
+    // logExtraFile.close();
+
+    std::ofstream logBotStats;
+    logBotStats.open("bot_stats_log" + _name + ".txt");
+    logBotStats << "Max solve time: " << max_td << '\n';
+    double av_td = td_sum / td_count;
+    logBotStats << "Average solve time: " << av_td << '\n';
+    logBotStats << "Sum solve time: " << td_sum << '\n';
+    logBotStats << "Count solve time: " << td_count << '\n';
+    for (auto td : td_vector) {
+      logBotStats << td << '\n';
     }
-    logExtraFile.close();
+    logBotStats.close();
   }
 };
 

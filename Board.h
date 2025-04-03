@@ -33,7 +33,7 @@ public:
 
   void fillBoard() {
     std::mt19937 gen(std::random_device{}());
-    std::uniform_int_distribution<int> rint(1, 6);
+    std::uniform_int_distribution<int> rint(1, 9);
     for (size_t i = 0; i < _height; i++) {
       for (size_t j = 0; j < _width; j++) {
         _board[i][j] = rint(gen);

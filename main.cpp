@@ -25,7 +25,8 @@ void runGame(Board& b, std::vector<Player*>& players, DetTurnQueue& tq,
     log << "\n";
 
     std::pair<int, int> hint = players[turn]->hint(b);
-
+    log << "Optimal " << hint.first << " " << hint.second << '\n';
+    // Ход бота.
     std::pair<int, int> change = players[turn]->makeMove(b, tqv, b.passStreak);
 
     std::string type = ((players[turn]->_isPlayer) ? "Player" : "Bot");
@@ -38,19 +39,14 @@ void runGame(Board& b, std::vector<Player*>& players, DetTurnQueue& tq,
       log << type + " decreases cell (" << change.first << ", " << change.second << ")!\n";
       b.passStreak = 0;
     }
-    
-    if (hint.first != change.first || hint.second != change.second) {
-      log << "!!!";
-    }
-    log << "Optimal: " << hint.first << ", " << hint.second << '\n';
 
     winner = b.hasWinner();
-    tq.nextTurn();
+    if (!winner) tq.nextTurn();
     log << '\n';
   }
   b.printBoard(log);
   if (winner == 3) {
-    winner = 1 - tq.getCurrTurn();
+    winner = tq.getCurrTurn();
     log << players[winner]->_name;
     log << " - won!";
   } else if (!players.empty()) {
@@ -58,9 +54,7 @@ void runGame(Board& b, std::vector<Player*>& players, DetTurnQueue& tq,
     log << " - won!";
   }
 
-  // DEBUG!!
-  // players[0]->logEvals();
-  // DEBUG!!
+  players[0]->logEvals();
 
   for (size_t i = 0; i < players.size(); i++) {
     delete players[i];
@@ -70,18 +64,30 @@ void runGame(Board& b, std::vector<Player*>& players, DetTurnQueue& tq,
 int main() {
   std::vector<Player*> players{new Bot("b1", "row"), new Bot("b2", "col")};
   Board b(3, 3);
-  b.fillBoard();
-  // b.fillBoard({{1, 1, 4},
-  //              {2, 2, 3},
-  //              {6, 1, 5}});
+  // b.fillBoard();
+  b.fillBoard({{1, 1, 4},
+               {2, 2, 3},
+               {6, 1, 5}});
+  // b.fillBoard({{1, 5, 5, 6, 5},
+  //              {3, 1, 6, 2, 1},
+  //              {6, 3, 5, 5, 2},
+  //              {5, 6, 3, 5, 1},
+  //              {5, 5, 3, 1, 3}});
+  // b.fillBoard({{1, 5, 5, 6, 0}, 
+  //              {0, 0, 2, 2, 1}, 
+  //              {6, 3, 5, 5, 0}, 
+  //              {5, 6, 3, 5, 1}, 
+  //              {5, 5, 3, 1, 3}});
+
   int turn = 0;
   
   DetTurnQueue tq {{0, 1}, {0, 0, 1, 1}};
+  // DetTurnQueue tq {{1}, {0, 0, 1, 1}};
   // RandTurnQueue tq {};
   
   std::ofstream logFile;
   logFile.open("game_log.txt");
-  runGame(b, players, tq, 5, logFile);
+  runGame(b, players, tq, 5, logFile);  // начиная с 3 не решает доску
   logFile.close();
   return 0;
 }

@@ -59,7 +59,7 @@ void runGame(Board& b, std::vector<Player*>& players, ITurnQueue& tq,
     }
 
     winner = b.hasWinner();
-    tq.nextTurn();
+    if (!winner) tq.nextTurn();
     log << '\n';
     allTurns++;
   }
@@ -110,11 +110,12 @@ int main() {
   int turn = 0;
   
   DetTurnQueue tq {{0, 1}, {0, 0, 1, 1}};
+  // DetTurnQueue tq {{1}, {0, 0, 1, 1}};
   // RandTurnQueue tq {};
   
   std::ofstream logFile;
   logFile.open("game_log.txt");
-  runGame(b, players, tq, 5, logFile);
+  runGame(b, players, tq, 5, logFile);  // начиная с 3 не решает доску
   logFile.close();
   // char str_out;
   // std::cin >> str_out;

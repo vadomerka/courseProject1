@@ -18,20 +18,24 @@ public:
 
   Player(std::string name, std::string intension) : _name(name), _winCond(intension) {}
   
-  virtual std::pair<int, int> makeMove(Board &board, const std::vector<int>& fTurns, int passStreak,
+  virtual std::pair<int, int> makeMove(Board &board, const std::vector<int>& fTurns, bool canPass, int passStreak, 
     int turnDepth = 4, std::ostream& log=std::cout) {
-    // setlocale(LC_ALL, "Russian");
-    log << "player move\n";
     std::string input = "";
     int r = 0;
     int c = 0;
     do {
-      log << "Enter coordinates: row col\n";
-      log << "Or write pass, to skip turn.\n";
+      log << "Введите координаты ненулевой ячейки в формате: ряд  колонка\n";
+      if (canPass) log << "Или напишите \"pass\", чтобы пропустить ход.\n";
       std::cin >> input;
-      if (input == "pass") { return {-1, -1}; }
-      r = std::stoi(input);
-      std::cin >> c;
+      if (input == "pass" && canPass) { return {-2, -2}; }
+      try {
+        r = std::stoi(input);
+        std::cin >> c;
+      } 
+      catch(const std::exception& e)
+      {
+        continue;
+      }
     } while (!canMakeMove(r, c, board));
     board.decrease(r, c);
     return {r, c};

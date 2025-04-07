@@ -14,11 +14,30 @@ struct DetTurnQueue : public ITurnQueue
   int turn;
   bool isInPeriod = false;
 
-  DetTurnQueue(const std::vector<int> &bbegining, const std::vector<int> &pperiod)
+  DetTurnQueue() {
+    setStartPeriod({0}, {1, 0});
+    turn = 0;
+  }
+
+  DetTurnQueue(const std::vector<int> &bbegining, const std::vector<int> &pperiod) : DetTurnQueue()
   {
+    setStartPeriod(bbegining, pperiod);
+  }
+
+  bool setStartPeriod(const std::vector<int> &bbegining, const std::vector<int> &pperiod) {
+    for (int n: bbegining) {
+      if (n < 0 || n > 1) {
+        return false;
+      }
+    }
+    for (int n: pperiod) {
+      if (n < 0 || n > 1) {
+        return false;
+      }
+    }
     beginning = bbegining;
     period = pperiod;
-    turn = 0;
+    return true;
   }
 
   int getCurrTurn()

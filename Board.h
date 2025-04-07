@@ -6,6 +6,7 @@
 #include <random>
 #include <string>
 #include <algorithm>
+#include <sstream>
 
 class Board {
 public:
@@ -31,6 +32,12 @@ public:
     _width = _height != 0 ? arr[0].size() : 0;
   }
 
+  void setSize(size_t h, size_t w) {
+    if (!_board.empty()) { return; }
+    _height = h;
+    _width = w;
+  }
+
   void fillBoard() {
     max_num = 0;
     std::mt19937 gen(std::random_device{}());
@@ -51,6 +58,45 @@ public:
         max_num += _board[i][j];
       }
     }
+  }
+
+  bool fillFromString(const std::string& dataString) {
+    try
+    {
+      std::vector<int> input_arr = parseArr(dataString);
+      std::vector<std::vector<int>> nmatrix;
+      if (input_arr.size() != _height * _width) {
+        return false;
+      }
+      for (size_t i = 0; i < _height; i++) {
+        nmatrix.push_back(std::vector<int> (_width, 0));
+      }
+      for (size_t k = 0; k < input_arr.size(); k++) {
+        if (input_arr[k] < 0) {
+          return false;
+        }
+        nmatrix[k / _height][k % _width] = input_arr[k];
+      }
+      
+      fillBoard(nmatrix);
+      return true;
+    }
+    catch(const std::exception& e)
+    {
+      return false;
+    }
+  }
+
+  static std::vector<int> parseArr(std::string dataString) {
+    std::istringstream iss(dataString);
+    std::string s;
+    std::vector<int> input_arr;
+    std::vector<std::vector<int>> nmatrix;
+    while (std::getline(iss, s, ' ')) {
+      int intput = std::stoi(s);
+      input_arr.push_back(intput);
+    }
+    return input_arr;
   }
 
   int hasWinner() const {

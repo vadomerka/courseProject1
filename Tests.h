@@ -13,16 +13,26 @@
 class SekiTests {
 public:
   static void tests() {
+
     std::cout << "Запуск тестов\n";
-    testBoard("game_test_01", {{1, 1, 4}, {2, 2, 3}, {6, 1, 5}});
-    testBoard("game_test_02_4", {{2, 6, 6, 6, 6}, {5, 6, 4, 4, 5}, {6, 5, 3, 2, 5}, {1, 5, 6, 6, 3}, {5, 3, 3, 1, 4}}, 4);
-    testBoard("game_test_02_5", {{2, 6, 6, 6, 6}, {5, 6, 4, 4, 5}, {6, 5, 3, 2, 5}, {1, 5, 6, 6, 3}, {5, 3, 3, 1, 4}}, 5);
-    testBoard("game_test_03", {{1, 5, 5, 6, 5}, {3, 1, 6, 2, 1}, {6, 3, 5, 5, 2}, {5, 6, 3, 5, 1}, {5, 5, 3, 1, 3}});
-    testBoard("game_test_04", {{0, 5, 5}, {1, 5, 5}, {2, 0, 0}});
-    testBoard("game_test_05", {{3, 4, 8, 4, 2}, {3, 2, 2, 5, 6}, {3, 7, 7, 8, 4}, {6, 7, 6, 5, 4}, {8, 1, 9, 9, 8}});
+    runBoardTests();
+    runGameTests();
   }
 
-  static void testBoard(const std::string &testName,
+  static void runBoardTests() {
+    
+  }
+
+  static void runGameTests() {
+    testGame("game_test_01", {{1, 1, 4}, {2, 2, 3}, {6, 1, 5}});
+    testGame("game_test_02_4", {{2, 6, 6, 6, 6}, {5, 6, 4, 4, 5}, {6, 5, 3, 2, 5}, {1, 5, 6, 6, 3}, {5, 3, 3, 1, 4}}, 4);
+    testGame("game_test_02_5", {{2, 6, 6, 6, 6}, {5, 6, 4, 4, 5}, {6, 5, 3, 2, 5}, {1, 5, 6, 6, 3}, {5, 3, 3, 1, 4}}, 5);
+    testGame("game_test_03", {{1, 5, 5, 6, 5}, {3, 1, 6, 2, 1}, {6, 3, 5, 5, 2}, {5, 6, 3, 5, 1}, {5, 5, 3, 1, 3}});
+    testGame("game_test_04", {{0, 5, 5}, {1, 5, 5}, {2, 0, 0}});
+    testGame("game_test_05", {{3, 4, 8, 4, 2}, {3, 2, 2, 5, 6}, {3, 7, 7, 8, 4}, {6, 7, 6, 5, 4}, {8, 1, 9, 9, 8}});
+  }
+
+  static void testGame(const std::string &testName,
                         const std::vector<std::vector<int>> &matrix, int turnDepth = 4,
                         const std::vector<int> &qs = {0, 1},
                         const std::vector<int> &qp = {0, 0, 1, 1}) {

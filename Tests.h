@@ -9,6 +9,7 @@
 #include "TurnQueues/RandTurnQueue.h"
 #include <iostream>
 #include <vector>
+#include <fstream>
 
 class SekiTests {
 public:
@@ -44,13 +45,13 @@ public:
 
     DetTurnQueue tq{qs, qp};
 
-    static std::ofstream outFile;
-    if (!outFile.is_open()) {
-      outFile.open(testName + ".txt");
+    std::ofstream testFile(testName + ".txt");
+    if (!testFile.is_open()) {
+      testFile.open(testName + ".txt");
     }
-    Game g;
-    g.runGame(b, players, tq, turnDepth, &outFile);
-    outFile.close();
+    Game g (false, false);
+    g.runGame(b, players, tq, turnDepth, &testFile);  // &testFile
+    testFile.close();
   }
 };
 

@@ -13,17 +13,14 @@ public:
   size_t _height = 0;
   size_t _width = 0;
   std::vector<std::vector<int>> _board;
-  long long max_num = 0;
-  int passStreak = 0;
-
+  long long _max_num = 0;
+  int _passStreak = 0;
 
 public:
   Board() {}
 
-  Board(size_t h, size_t w) : _height(h), _width(w) {
-    for (size_t i = 0; i < h; i++) {
-      _board.push_back(std::vector<int> (_width, 0));
-    }
+  Board(size_t h, size_t w) {
+    setSize(h, w);
   }
 
   Board(std::vector<std::vector<int>> arr) {
@@ -33,29 +30,33 @@ public:
   }
 
   void setSize(size_t h, size_t w) {
-    if (!_board.empty()) { return; }
+    _board.clear();
+    _max_num = 0;
     _height = h;
     _width = w;
+    for (size_t i = 0; i < h; i++) {
+      _board.push_back(std::vector<int> (_width, 0));
+    }
   }
 
   void fillBoard() {
-    max_num = 0;
+    _max_num = 0;
     std::mt19937 gen(std::random_device{}());
     std::uniform_int_distribution<int> rint(1, 9);
     for (size_t i = 0; i < _height; i++) {
       for (size_t j = 0; j < _width; j++) {
         _board[i][j] = rint(gen);
-        max_num += _board[i][j];
+        _max_num += _board[i][j];
       }
     }
   }
 
   void fillBoard(const std::vector<std::vector<int>>& matrix) {
-    max_num = 0;
+    _max_num = 0;
     for (size_t i = 0; i < _height; i++) {
       for (size_t j = 0; j < _width; j++) {
         _board[i][j] = matrix[i][j];
-        max_num += _board[i][j];
+        _max_num += _board[i][j];
       }
     }
   }

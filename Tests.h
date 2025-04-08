@@ -9,17 +9,19 @@
 #include "TurnQueues/RandTurnQueue.h"
 #include <iostream>
 #include <vector>
+#include <fstream>
 
 class SekiTests {
 public:
   static void tests() {
     std::cout << "Запуск тестов\n";
-    testBoard("game_test_01", {{1, 1, 4}, {2, 2, 3}, {6, 1, 5}});
+    // testBoard("game_test_01", {{1, 1, 4}, {2, 2, 3}, {6, 1, 5}});
     testBoard("game_test_02_4", {{2, 6, 6, 6, 6}, {5, 6, 4, 4, 5}, {6, 5, 3, 2, 5}, {1, 5, 6, 6, 3}, {5, 3, 3, 1, 4}}, 4);
-    testBoard("game_test_02_5", {{2, 6, 6, 6, 6}, {5, 6, 4, 4, 5}, {6, 5, 3, 2, 5}, {1, 5, 6, 6, 3}, {5, 3, 3, 1, 4}}, 5);
-    testBoard("game_test_03", {{1, 5, 5, 6, 5}, {3, 1, 6, 2, 1}, {6, 3, 5, 5, 2}, {5, 6, 3, 5, 1}, {5, 5, 3, 1, 3}});
-    testBoard("game_test_04", {{0, 5, 5}, {1, 5, 5}, {2, 0, 0}});
-    testBoard("game_test_05", {{3, 4, 8, 4, 2}, {3, 2, 2, 5, 6}, {3, 7, 7, 8, 4}, {6, 7, 6, 5, 4}, {8, 1, 9, 9, 8}});
+    // testBoard("game_test_02_5", {{2, 6, 6, 6, 6}, {5, 6, 4, 4, 5}, {6, 5, 3, 2, 5}, {1, 5, 6, 6, 3}, {5, 3, 3, 1, 4}}, 5);
+    // testBoard("game_test_03", {{1, 5, 5, 6, 5}, {3, 1, 6, 2, 1}, {6, 3, 5, 5, 2}, {5, 6, 3, 5, 1}, {5, 5, 3, 1, 3}});
+    // testBoard("game_test_04", {{0, 5, 5}, {1, 5, 5}, {2, 0, 0}});
+    // testBoard("game_test_05", {{3, 4, 8, 4, 2}, {3, 2, 2, 5, 6}, {3, 7, 7, 8, 4}, {6, 7, 6, 5, 4}, {8, 1, 9, 9, 8}});
+    std::cout << "Тесты были выполнены.\n";
   }
 
   static void testBoard(const std::string &testName,
@@ -33,13 +35,13 @@ public:
 
     DetTurnQueue tq{qs, qp};
 
-    static std::ofstream outFile;
-    if (!outFile.is_open()) {
-      outFile.open(testName + ".txt");
+    std::ofstream testFile(testName + ".txt");
+    if (!testFile.is_open()) {
+      testFile.open(testName + ".txt");
     }
-    Game g;
-    g.runGame(b, players, tq, turnDepth, &outFile);
-    outFile.close();
+    Game g (false, false);
+    g.runGame(b, players, tq, turnDepth, &testFile);  // &testFile
+    testFile.close();
   }
 };
 

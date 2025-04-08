@@ -50,7 +50,7 @@ public:
     int turnDepth = 4, std::ostream& log=std::cout) override {
     turns = fTurns;                                         // Доступные ходы
     Depth depth(turnDepth == 0 ? turns.size() : turnDepth); // Глубина минимакса
-    inf = board.max_num; // Сумма доски (наибольшее значение оценки)
+    inf = board._max_num; // Сумма доски (наибольшее значение оценки)
 
     std::pair<int, int> bestMove = minimax(board, depth, canPass, passStreak).first;
 

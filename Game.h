@@ -64,10 +64,10 @@ public:
       // b.passStreak - сколько ходов было пропущено до этого.
       std::pair<int, int> change;
       if (players[turn]->_isPlayer) {
-        change = players[turn]->makeMove(b, tqv, b.passStreak, _canPass);
+        change = players[turn]->makeMove(b, tqv, _canPass, b._passStreak, turnDepth);
       } else {
         change = (dynamic_cast<Bot *>(players[turn]))
-                     ->makeTimedMove(b, tqv, b.passStreak, turnDepth, _canPass);
+                     ->makeTimedMove(b, tqv, _canPass, b._passStreak, turnDepth);
         // change = (dynamic_cast<Bot*>(players[turn]))->makeMove("");
       }
 
@@ -75,13 +75,13 @@ public:
       // Если игрок пропускает ход.
       if (change.first == -2) {
         log << type + " пропускает ход!\n";
-        b.passStreak++;
+        b._passStreak++;
       } else if (change.first == -1) {
         log << type + " ошибка!\n";
       } else {
         log << type + " уменьшает ячейку (" << change.first << ", "
             << change.second << ")!\n";
-        b.passStreak = 0;
+        b._passStreak = 0;
       }
 
       winner = b.hasWinner();

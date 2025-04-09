@@ -23,10 +23,20 @@ public:
   static void runBoardTests() {
     std::vector<bool> results;
     results.push_back(testBoard("test 01", {{0}}, {0, 1}, {-1, -1}));
+    results.push_back(testBoard("test 02", {{2, 0}, {0, 9}}, {0, 1}, {-2, -2}));
+    results.push_back(testBoard("test 03", {{1, 0, 0}, {0, 9, 9}, {0, 9, 9}}, {0, 1}));
+    results.push_back(testBoard("test 04", {{0, 4, 3}, {0, 5, 6}, {3, 0, 0}}, {1, 1, 0}, {-2, -2}));
+    results.push_back(testBoard("test 05", {{1, 4, 3}, {0, 5, 6}, {3, 1, 0}}, {1, 0}, {0, 0}));
+    results.push_back(testBoard("test 06", 
+      {{0, 4, 3}, 
+       {0, 5, 6}, 
+       {3, 0, 0}}, {1, 0, 0}, {1, 1}, false));
 
-    for (bool res : results) {
+    for (int i = 0; i < results.size(); i++) {
+      bool res = results[i];
       if (!res) {
-        std::cout << "Error while running auto tests!";
+        std::cout << "Error while running auto tests!" << " Test id = " << i << '\n';
+        return;
       }
     }
     std::cout << "auto tests finished successfully!";
@@ -42,10 +52,11 @@ public:
       Board b(matrix.size(), matrix[0].size());
       b.fillBoard(matrix);
 
-      std::pair<int, int> res = players[qs[0]]->makeMove(b, qs, canPass, passStreak, qs.size());
       if (check.first == -3) {
         check = players[qs[0]]->hint(b);
       }
+      std::pair<int, int> res = players[qs[0]]->makeMove(b, qs, canPass, passStreak, qs.size());
+
       if (res.first == check.first && res.second == check.second) {
         return true;
       }
@@ -55,9 +66,9 @@ public:
 
   static void runGameTests() {
     testGame("game_test_01", {{1, 1, 4}, {2, 2, 3}, {6, 1, 5}});
+    testGame("game_test_02_3", {{2, 6, 6, 6, 6}, {5, 6, 4, 4, 5}, {6, 5, 3, 2, 5}, {1, 5, 6, 6, 3}, {5, 3, 3, 1, 4}}, 3);
     testGame("game_test_02_4", {{2, 6, 6, 6, 6}, {5, 6, 4, 4, 5}, {6, 5, 3, 2, 5}, {1, 5, 6, 6, 3}, {5, 3, 3, 1, 4}}, 4);
     testGame("game_test_02_5", {{2, 6, 6, 6, 6}, {5, 6, 4, 4, 5}, {6, 5, 3, 2, 5}, {1, 5, 6, 6, 3}, {5, 3, 3, 1, 4}}, 5);
-    testGame("game_test_02_6", {{2, 6, 6, 6, 6}, {5, 6, 4, 4, 5}, {6, 5, 3, 2, 5}, {1, 5, 6, 6, 3}, {5, 3, 3, 1, 4}}, 6);
     testGame("game_test_03", {{1, 5, 5, 6, 5}, {3, 1, 6, 2, 1}, {6, 3, 5, 5, 2}, {5, 6, 3, 5, 1}, {5, 5, 3, 1, 3}});
     testGame("game_test_04", {{0, 5, 5}, {1, 5, 5}, {2, 0, 0}});
     testGame("game_test_05", {{3, 4, 8, 4, 2}, {3, 2, 2, 5, 6}, {3, 7, 7, 8, 4}, {6, 7, 6, 5, 4}, {8, 1, 9, 9, 8}});
@@ -78,7 +89,9 @@ public:
     if (!testFile.is_open()) {
       testFile.open(testName + ".txt");
     }
-    Game g (false, false);
+    bool canDraw = false;
+    bool canPass = true;
+    Game g(canDraw, canPass);
     g.runGame(b, players, tq, turnDepth, &testFile);  // &testFile
     testFile.close();
   }

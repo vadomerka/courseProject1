@@ -46,17 +46,13 @@ public:
       b.printBoard(log);
       // Получаем текущего игрока.
       int turn = tq.getCurrTurn();
-      log << "Ход игрока " << turn + 1 << ".\n";
+      log << "Player " << turn + 1 << "'s turn.\n";
       // Получаем слудующие n ходов.
       tqv = tq.getNextTurns(shownTurnsNum);
       for (int i = 0; i < tqv.size(); i++) {
         log << tqv[i] << " ";
       }
       log << "\n";
-
-      // Оптимальный ход по алгоритму 1.
-      // std::pair<int, int> hint = players[turn]->hint(b);
-      // log << hint.first << " " << hint.second << '\n';
 
       int turnDepth = std::min(shownTurnsNum, shownTurnsNum);
 
@@ -68,18 +64,17 @@ public:
       } else {
         change = (dynamic_cast<Bot *>(players[turn]))
                      ->makeTimedMove(b, tqv, _canPass, b._passStreak, turnDepth);
-        // change = (dynamic_cast<Bot*>(players[turn]))->makeMove("");
       }
 
-      std::string type = ((players[turn]->_isPlayer) ? "Игрок" : "Бот");
+      std::string type = ((players[turn]->_isPlayer) ? "Player" : "Bot");
       // Если игрок пропускает ход.
       if (change.first == -2) {
-        log << type + " пропускает ход!\n";
+        log << type + " passes the turn!\n";
         b._passStreak++;
       } else if (change.first == -1) {
-        log << type + " ошибка!\n";
+        log << type + " error!\n";
       } else {
-        log << type + " уменьшает ячейку (" << change.first << ", "
+        log << type + " decreases cell (" << change.first << ", "
             << change.second << ")!\n";
         b._passStreak = 0;
       }
@@ -94,16 +89,15 @@ public:
     b.printBoard(log);
     if (winner == 3) {
       if (_canDraw) {
-        log << "Игра завершилась ничьей. Победила дружба!\n";
+        log << "The game ended in a draw. Friendship wins!\n";
       } else {
-        // Считаем кто последний занулил.
         winner = tq.getCurrTurn();
         log << players[winner]->_name;
-        log << " - победил!\n";
+        log << " wins!\n";
       }
     } else if (!players.empty()) {
       log << players[winner - 1]->_name;
-      log << " - победил!\n";
+      log << " wins!\n";
     }
 
     if (logStats) {
@@ -116,92 +110,97 @@ public:
     }
   }
 
-  void getGameType() {
-    std::cout << "Выберете тип игры (чтобы выбрать, введите число):\n";
-    std::cout << "1. Секи (Выигрывает тот, кто сделал последний ход)\n";
-    std::cout << "2. Н-Секи (Если нулевые строка и столбец возникли одновременно, объявляется ничья):\n";
+  bool getGameType() {
+    std::cout << "Choose game type: 1/2\n";
+    std::cout << "1. Seki (Last player to make a move wins)\n";
+    std::cout << "2. D-Seki (If a zero row and column occur simultaneously, it's a draw):\n";
     char input = '1';
     std::cin >> input;
     _canDraw = false;
     if (input == '2') {
       _canDraw = true;
-      std::cout << "Выбран вариант Н-Секи\n";
+      std::cout << "D-Seki variant selected\n";
     } else {
-      std::cout << "Выбран вариант Секи\n";
+      std::cout << "Seki variant selected\n";
     }
+    return true;
   }
 
-  void getCanPass() {
-    std::cout << "Можно ли пропускать ход? y/n\n";
+  bool getCanPass() {
+    std::cout << "Can players pass their turn? y/n\n";
     _canPass = true;
     char input = 'n';
     std::cin >> input;
     if (input == 'n') {
       _canPass = false;
-      std::cout << "Выбран вариант нельзя\n";
+      std::cout << "Passing is disabled\n";
     } else {
-      std::cout << "Выбран вариант можно\n";
+      std::cout << "Passing is allowed\n";
     }
+    return true;
   }
 
-  void getBoardSize() {
-    std::cout << "Введите размер доски в формате число строк, затем число "
-                 "столбцов через пробел.\n";
-    std::cout << "Максимальный размер доски - 10x10.\n";
+  bool getBoardSize() {
+    std::cout << "Enter board size as number of rows followed by number of columns, separated by space.\n";
+    std::cout << "Maximum board size is 10x10.\n";
     size_t rows;
     size_t cols;
     std::cin >> rows >> cols;
     if (rows > 10 || cols > 10 || rows * cols == 0) {
-      std::cout << "Неверные данные.\n";
-      return;
+      std::cout << "Invalid input.\n";
+      return false;
     }
+    std::cout << "Board size: " << rows << " " << cols << ".\n";
     b.setSize(rows, cols);
+    return true;
   }
 
-  void getBoardContents() {
-    std::cout << "Заполнить доску случайными значениями? y/n\n";
+  bool getBoardContents() {
+    std::cout << "Fill the board with random values? y/n\n";
     char input = 'y';
     std::cin >> input;
-    if (input == 'y') {
+    if (input != 'n') {
       b.fillBoard();
     } else {
       std::string boardString = "";
-      std::cout << "Введите строку для инициализации доски.\n";
-      std::cout << "Строка должна содержать " + std::to_string(b._height * b._width) +
-                       " положительных чисел через пробел.\n";
-      std::getline(std::cin, boardString);
+      std::cout << "Enter a string to initialize the board.\n";
+      std::cout << "The string must contain " + std::to_string(b._height * b._width) + " positive numbers separated by space.\n";
+      std::cin.ignore();
       std::getline(std::cin, boardString);
       if (!b.fillFromString(boardString)) {
-        std::cout << "Строка неверного формата!\n";
-        return;
+        std::cout << "Invalid string format!\n";
+        return false;
       }
     }
+    std::cout << "Game board:\n";
+    b.printBoard();
+    return true;
   }
 
-  void getPlayerType(size_t ind) {
-    std::cout << "Выберете тип первого игрока Player/Bot. 1/2\n";
+  bool getPlayerType(size_t ind) {
+    std::cout << "Choose type of " << ind + 1 << " player: Player/Bot. 1/2\n";
     char input = '2';
     std::cin >> input;
     if (input == '1') {
-      players[ind] = new Player("player 1", "row");
+      players[ind] = new Player("player " + std::to_string(ind + 1), "row");
       _arePlayers = true;
-      std::cout << "Создан игрок Player\n";
+      std::cout << "Player created\n";
     } else {
-      std::cout << "Создан игрок Bot\n";
+      std::cout << "Bot created\n";
     }
+    return true;
   }
 
-  void getTurnQueue() {
+  bool getTurnQueue() {
     char input = '1';
-    std::cout << "Добавить обычную, случайную или детерминированную очередь? 1/2/3\n";
+    std::cout << "Add normal, random, or deterministic turn queue? 1/2/3\n";
     std::cin >> input;
     if (input == '1') {
       tq = new DetTurnQueue();
     } else if (input == '2') {
       tq = new RandTurnQueue();
     } else {
-      std::cout << "Введите массив начала очереди, затем периода очереди. "
-                   "Массивы должны содержать только 0 и 1.\n";
+      std::cout << "Enter initial queue array, then period array. Arrays must contain only 0 and 1.\n";
       std::string start;
       std::string period;
       std::getline(std::cin, start);
@@ -211,30 +210,31 @@ public:
       auto pArr = Board::parseArr(period);
       auto dtq = DetTurnQueue();
       if (!dtq.setStartPeriod(sArr, pArr)) {
-        std::cout << "Неверный формат очереди.\n";
-        return;
+        std::cout << "Invalid queue format.\n";
+        return false;
       }
       tq = new DetTurnQueue(sArr, pArr);
     }
+    return true;
   }
 
-  void getTurnDepth() {
+  bool getTurnDepth() {
     _turnDepth = 1;
     do {
-      std::cout
-          << "Введите натуральное число - количество просматриваемых ходов.\n";
+      std::cout << "Enter a positive integer - number of visible upcoming turns.\n";
       std::cin >> _turnDepth;
     } while (_turnDepth <= 0);
+    return true;
   }
 
-  void showResult() {
+  bool showResult() {
     char input = '2';
     if (!_arePlayers) {
-      std::cout << "Вывести результаты в файл или в консоль? 1/2\n";
+      std::cout << "Output results to file or console? 1/2\n";
       std::cin >> input;
     }
     std::ofstream logFile;
-    std::cout << "Запуск игры.\n";
+    std::cout << "Starting the game.\n";
     if (input == '1') {
       std::ostream *logFile = &std::cout;
       static std::ofstream outFile;
@@ -247,21 +247,26 @@ public:
     } else {
       runGame(b, players, *tq, _turnDepth);
     }
+    return true;
+  }
+
+  void errorMessage() {
+    std::cout << "An error occured during game creation.\n";
   }
 
   void makeGame() {
-    getGameType();
-    getCanPass();
+    if (!getGameType()) { errorMessage(); return; };
+    if (!getCanPass()) { errorMessage(); return; };
 
-    getBoardSize();
-    getBoardContents();
-    
-    getPlayerType(0);
-    getPlayerType(1);
+    if (!getBoardSize()) { errorMessage(); return; };
+    if (!getBoardContents()) { errorMessage(); return; };
 
-    getTurnQueue();
-    getTurnDepth();
-    
+    if (!getPlayerType(0)) { errorMessage(); return; };
+    if (!getPlayerType(1)) { errorMessage(); return; };
+
+    if (!getTurnQueue()) { errorMessage(); return; };
+    if (!getTurnDepth()) { errorMessage(); return; };
+
     showResult();
   }
 };

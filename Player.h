@@ -24,8 +24,8 @@ public:
     int r = 0;
     int c = 0;
     do {
-      log << "Введите координаты ненулевой ячейки в формате: ряд  колонка\n";
-      if (canPass) log << "Или напишите \"pass\", чтобы пропустить ход.\n";
+      log << "Enter coordinates of a non-zero cell in format: row col\n";
+      if (canPass) log << "Or write \"pass\", to skip turn.\n";
       std::cin >> input;
       if (input == "pass" && canPass) { return {-2, -2}; }
       try {
@@ -66,6 +66,9 @@ public:
   }
 
   std::pair<int, int> hint(const Board &board) {
+    if (board.hasWinner() != 0) {
+      return {-1, -1};
+    }
     std::string input = "";
     int r = calcRowPriority(board)[0];
     int c = calcColPriority(board)[0];

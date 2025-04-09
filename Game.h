@@ -40,7 +40,9 @@ public:
     int winner = b.hasWinner();
     std::vector<int> tqv;
     int allTurns = 0;
-
+    
+    log << "Game start!\n";
+    log << "Rules: can pass: " + std::to_string(_canPass) + ", can draw: " + std::to_string(_canPass) + "\n";
     while (winner == 0 && players.size() > 1) {
       // Выводим доску.
       b.printBoard(log);
@@ -178,7 +180,7 @@ public:
   }
 
   bool getPlayerType(size_t ind) {
-    std::cout << "Choose type of " << ind + 1 << " player: Player/Bot. 1/2\n";
+    std::cout << "Choose type of player " << ind + 1 << ": Player/Bot. 1/2\n";
     char input = '2';
     std::cin >> input;
     if (input == '1') {
@@ -195,15 +197,11 @@ public:
     char input = '1';
     std::cout << "Add normal, random, or deterministic turn queue? 1/2/3\n";
     std::cin >> input;
-    if (input == '1') {
-      tq = new DetTurnQueue();
-    } else if (input == '2') {
-      tq = new RandTurnQueue();
-    } else {
+    if (input == '3') {
       std::cout << "Enter initial queue array, then period array. Arrays must contain only 0 and 1.\n";
       std::string start;
       std::string period;
-      std::getline(std::cin, start);
+      std::cin.ignore();
       std::getline(std::cin, start);
       std::getline(std::cin, period);
       auto sArr = Board::parseArr(start);
@@ -214,6 +212,13 @@ public:
         return false;
       }
       tq = new DetTurnQueue(sArr, pArr);
+      std::cout << "Deterministic turn queue created.\n";
+    } else if (input == '2') {
+      tq = new RandTurnQueue();
+      std::cout << "Random turn queue created.\n";
+    } else {
+      tq = new DetTurnQueue();
+      std::cout << "Classic turn queue created.\n";
     }
     return true;
   }
@@ -234,8 +239,8 @@ public:
       std::cin >> input;
     }
     std::ofstream logFile;
-    std::cout << "Starting the game.\n";
     if (input == '1') {
+      std::cout << "Game results will be logged to \"game_log.txt\"\n";
       std::ostream *logFile = &std::cout;
       static std::ofstream outFile;
       if (!outFile.is_open()) {
@@ -247,6 +252,7 @@ public:
     } else {
       runGame(b, players, *tq, _turnDepth);
     }
+    std::cout << "Game finished!";
     return true;
   }
 

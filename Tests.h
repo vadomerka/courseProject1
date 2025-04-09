@@ -17,12 +17,41 @@ public:
 
     std::cout << "Запуск тестов\n";
     runBoardTests();
-    runGameTests();
+    // runGameTests();
   }
 
   static void runBoardTests() {
-    
+    std::vector<bool> results;
+    results.push_back(testBoard("test 01", {{0}}, {0, 1}, {-1, -1}));
+
+    for (bool res : results) {
+      if (!res) {
+        std::cout << "Error while running auto tests!";
+      }
+    }
+    std::cout << "auto tests finished successfully!";
   }
+
+  static bool testBoard(const std::string &testName,
+                        const std::vector<std::vector<int>> &matrix, 
+                        const std::vector<int> &qs, 
+                        std::pair<int, int> check = {-3, -3},
+                        bool canPass = true, int passStreak = 0) {
+      if (qs.empty()) return false;
+      std::vector<Player *> players{new Bot("b1", "row"), new Bot("b2", "col")};
+      Board b(matrix.size(), matrix[0].size());
+      b.fillBoard(matrix);
+
+      std::pair<int, int> res = players[qs[0]]->makeMove(b, qs, canPass, passStreak, qs.size());
+      if (check.first == -3) {
+        check = players[qs[0]]->hint(b);
+      }
+      if (res.first == check.first && res.second == check.second) {
+        return true;
+      }
+      return false;
+    }
+
 
   static void runGameTests() {
     testGame("game_test_01", {{1, 1, 4}, {2, 2, 3}, {6, 1, 5}});

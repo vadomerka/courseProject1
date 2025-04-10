@@ -25,9 +25,9 @@ public:
     int c = 0;
     do {
       log << "Enter coordinates of a non-zero cell in format: row col\n";
-      if (canPass) log << "Or write \"pass\", to skip turn.\n";
+      if (canPass && passStreak < 2) log << "Or write \"pass\", to skip turn.\n";
       std::cin >> input;
-      if (input == "pass" && canPass) { return {-2, -2}; }
+      if (input == "pass" && canPass && passStreak < 2) { return {-2, -2}; }
       try {
         r = std::stoi(input);
         std::cin >> c;

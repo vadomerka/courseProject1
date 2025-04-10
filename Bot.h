@@ -219,7 +219,6 @@ private:
         eur = -inf;
       } else {
         eur /= (minCol + minRow);
-        // eur *= inf / (minCol + minRow);
       }
       // Запись только если не зависит от того, кто выиграл.
       evalMap[board.toString()] = eur;

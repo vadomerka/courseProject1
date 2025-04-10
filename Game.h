@@ -252,7 +252,7 @@ public:
     } else {
       runGame(b, players, *tq, _turnDepth);
     }
-    std::cout << "Game finished!";
+    std::cout << "Game finished!\n";
     return true;
   }
 
